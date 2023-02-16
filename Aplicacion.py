@@ -11,6 +11,8 @@ from PIL import Image, ImageTk
 from tkinter import Tk, Button
 
 from Clientes import altaClientes
+from Productos import altaProductos
+from Proveedores import altaProveedores
 
 
 def saludar(texto):
@@ -20,6 +22,10 @@ def saludar(texto):
         altaClientes()
     elif texto == 'Proveedores':
         messagebox.showinfo(message=texto, title="Opción Elegida:")
+        altaProveedores()
+    elif texto == 'Productos':
+        messagebox.showinfo(message=texto, title="Opción Elegida:")
+        altaProductos()
     elif texto == 'Generar factura':
         messagebox.showinfo(message=texto, title="Opción Elegida:")
     elif texto == 'Emitir factura':
@@ -28,7 +34,7 @@ def saludar(texto):
         messagebox.showinfo(message=texto, title="Opción Elegida:")
         raiz.destroy()
 
-botones = ['Clientes', 'Proveedores', 'Generar factura', 'Emitir factura', 'Salir']
+botones = ['Clientes', 'Proveedores', 'Productos', 'Generar factura', 'Emitir factura', 'Salir']
 y = 0
 z = 0
 raiz = Tk()
@@ -50,11 +56,11 @@ for i in range(len(botones)):
     listaBotones.append(Button(marco))
 
 for i in range(len(listaBotones)):
-    z+=110
+    z+=90
     listaBotones[i].config(text=botones[i], width=20, height=2, anchor="center",
                            activebackground="red", relief="raised",
                            borderwidth=5, font=("Bahnschrift",14),
                            command=lambda m=botones[i]: saludar(m))
-    listaBotones[i].place(x=700, y=90+z)
+    listaBotones[i].place(x=700, y=110+z)
     
 raiz.mainloop()
