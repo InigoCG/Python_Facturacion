@@ -13,6 +13,7 @@ from tkinter import Tk, Button
 from Clientes import altaClientes
 from Productos import altaProductos
 from Proveedores import altaProveedores
+from generarFactura import creacionFacturas
 
 
 def saludar(texto):
@@ -28,6 +29,7 @@ def saludar(texto):
         altaProductos()
     elif texto == 'Generar factura':
         messagebox.showinfo(message=texto, title="Opción Elegida:")
+        creacionFacturas()
     elif texto == 'Emitir factura':
         messagebox.showinfo(message=texto, title="Opción Elegida:")
     elif texto == 'Salir':

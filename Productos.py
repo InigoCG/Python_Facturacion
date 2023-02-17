@@ -4,6 +4,9 @@ import sqlite3
 from tkinter.messagebox import *
 from tkinter import Tk, Button
 
+import tabla as tabla
+
+
 def actualizarcombo(event):
     index = combobo.current()
 
@@ -134,6 +137,35 @@ def altaProductos():
     combobo['values'] = ("Perecedro", "No Perecedero")
     combobo.grid(row=10, column=1, sticky="w", padx=10, pady=10)
     combobo.bind('<<ComboboxSelected>>', actualizarcombo)
+
+    global tabla
+    tabla = ttk.Treeview(marco,
+                         columns=("id", "nombre", "empresa", "precio", "cantidad", "consumible"))
+    tabla["show"] = "headings"
+    tabla.column("#0")
+    tabla.column("id", width=150, anchor=tk.CENTER)
+    tabla.column("nombre", width=150, anchor=tk.CENTER)
+    tabla.column("empresa", width=150, anchor=tk.CENTER)
+    tabla.column("precio", width=150, anchor=tk.CENTER)
+    tabla.column("cantidad", width=150, anchor=tk.CENTER)
+    tabla.column("consumible", width=150, anchor=tk.CENTER)
+
+    tabla.heading("id", text="id", anchor=tk.CENTER)
+    tabla.heading("nombre", text="nombre", anchor=tk.CENTER)
+    tabla.heading("empresa", text="empresa", anchor=tk.CENTER)
+    tabla.heading("precio", text="precio", anchor=tk.CENTER)
+    tabla.heading("cantidad", text="cantidad", anchor=tk.CENTER)
+    tabla.heading("consumible", text="consumible", anchor=tk.CENTER)
+
+    conexion = sqlite3.connect('base.db')
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM productos")
+
+    i = 0
+    for a in cursor:
+        tabla.insert("", i, text="", values=(a[0], a[1], a[2], a[3], a[4], a[5]))
+        i += 1
+    tabla.place(x=450, y= 450)
 
     global botonGuardar
     botonGuardar = Button(marco)

@@ -105,6 +105,31 @@ def altaClientes():
     ciudad.grid(row=8, column=1, sticky="w", padx=10, pady=10)
     ciudad.bind('<Leave>', actualizarCiudad)
 
+    global tabla
+    tabla = ttk.Treeview(marco,
+                         columns=("id", "nombre", "apellido", "ciudad"))
+    tabla["show"] = "headings"
+    tabla.column("#0")
+    tabla.column("id", width=150, anchor=tk.CENTER)
+    tabla.column("nombre", width=150, anchor=tk.CENTER)
+    tabla.column("apellido", width=150, anchor=tk.CENTER)
+    tabla.column("ciudad", width=150, anchor=tk.CENTER)
+
+    tabla.heading("id", text="id", anchor=tk.CENTER)
+    tabla.heading("nombre", text="nombre", anchor=tk.CENTER)
+    tabla.heading("apellido", text="apellido", anchor=tk.CENTER)
+    tabla.heading("ciudad", text="ciudad", anchor=tk.CENTER)
+
+    conexion = sqlite3.connect('base.db')
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM clientes")
+
+    i = 0
+    for a in cursor:
+        tabla.insert("", i, text="", values=(a[0], a[1], a[2], a[3]))
+        i += 1
+    tabla.place(x=450, y=450)
+
     global botonGuardar
     botonGuardar = Button(marco)
     botonGuardar.config(text="GUARDAR", width=10, height=2, anchor="center", activebackground="blue", relief="raised",
