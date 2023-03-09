@@ -16,8 +16,8 @@ def actualizarNombre(event):
 def actualizarEmpresa(event):
     empresas = empresa.get()
 
-def actualizarPrecio(event):
-    precios = precio.get()
+"""def actualizarPrecio(event):
+    precios = precio.get()"""
 
 def actualizarCantidad(event):
     cantidades = cantidad.get()
@@ -29,7 +29,7 @@ def guardar():
     id = codProducto.get()
     nombres = nombre.get()
     empresas = empresa.get()
-    precios = precio.get()
+    #precios = precio.get()
     cantidades = cantidad.get()
     index = combobo.current()
     if index == 0:
@@ -43,7 +43,6 @@ def guardar():
                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
                        nombre VARCHAR(40) NOT NULL, 
                        empresa VARCHAR(40) NOT NULL, 
-                       precio INTEGER NOT NULL, 
                        cantidad INTEGER NOT NULL, 
                        consumible VARCHAR(12) NOT NULL)
                        ''')
@@ -51,9 +50,20 @@ def guardar():
     except sqlite3.OperationalError as error:
         print("Error al abrir: ", error)
 
-    registro = "INSERT INTO productos (nombre, empresa, precio, cantidad, consumible) VALUES(?, ?, ?, ?, ?)"
-    cursor.execute(registro, [nombres, empresas, precios, cantidades, consumible])
+    registro = "INSERT INTO productos (nombre, empresa, cantidad, consumible) VALUES(?, ?, ?, ?)"
+    cursor.execute(registro, [nombres, empresas, cantidades, consumible])
     connection.commit()
+
+    tabla.delete(*tabla.get_children())
+
+    cursor.execute("SELECT * FROM productos")
+
+    i = 0
+    for a in cursor:
+        tabla.insert("", i, text="", values=(a[0], a[1], a[2], a[3], a[4]))
+        i += 1
+    tabla.place(x=450, y=450)
+
     mostrar()
     continuar()
 
@@ -79,7 +89,7 @@ def continuar():
         codProducto.delete(0, 'end')
         nombre.delete(0, 'end')
         empresa.delete(0, 'end')
-        precio.delete(0, 'end')
+        #precio.delete(0, 'end')
         cantidad.delete(0, 'end')
         combobo.delete(0, 'end')
     elif dato == False:
@@ -119,41 +129,39 @@ def altaProductos():
     empresa.grid(row=7, column=1, sticky="w", padx=10, pady=10)
     empresa.bind('<Leave>', actualizarEmpresa)
 
-    etiqueta2 = tk.Label(marco, text="precio", bg="yellow", font=("Bahnschrift", 12)).grid(row=8, column=0, sticky="w",padx=10, pady=10)
+    """etiqueta2 = tk.Label(marco, text="precio", bg="yellow", font=("Bahnschrift", 12)).grid(row=8, column=0, sticky="w",padx=10, pady=10)
     global precio
     precio = tk.Entry(marco, width=100)
     precio.grid(row=8, column=1, sticky="w", padx=10, pady=10)
-    precio.bind('<Leave>', actualizarPrecio)
+    precio.bind('<Leave>', actualizarPrecio)"""
 
-    etiqueta2 = tk.Label(marco, text="cantidad", bg="yellow", font=("Bahnschrift", 12)).grid(row=9, column=0, sticky="w",padx=10, pady=10)
+    etiqueta2 = tk.Label(marco, text="cantidad", bg="yellow", font=("Bahnschrift", 12)).grid(row=8, column=0, sticky="w",padx=10, pady=10)
     global cantidad
     cantidad = tk.Entry(marco, width=100)
-    cantidad.grid(row=9, column=1, sticky="w", padx=10, pady=10)
+    cantidad.grid(row=8, column=1, sticky="w", padx=10, pady=10)
     cantidad.bind('<Leave>', actualizarCantidad)
 
-    etiqueta4 = tk.Label(marco, text="Durabilidad", bg="yellow", font=("Bahnschrift", 12)).grid(row=10, column=0,sticky="w", padx=10,pady=10)
+    etiqueta4 = tk.Label(marco, text="Durabilidad", bg="yellow", font=("Bahnschrift", 12)).grid(row=9, column=0,sticky="w", padx=10,pady=10)
     global combobo
     combobo = ttk.Combobox(marco)
     combobo['values'] = ("Perecedro", "No Perecedero")
-    combobo.grid(row=10, column=1, sticky="w", padx=10, pady=10)
+    combobo.grid(row=9, column=1, sticky="w", padx=10, pady=10)
     combobo.bind('<<ComboboxSelected>>', actualizarcombo)
 
     global tabla
     tabla = ttk.Treeview(marco,
-                         columns=("id", "nombre", "empresa", "precio", "cantidad", "consumible"))
+                         columns=("id", "nombre", "empresa", "cantidad", "consumible"))
     tabla["show"] = "headings"
     tabla.column("#0")
     tabla.column("id", width=150, anchor=tk.CENTER)
     tabla.column("nombre", width=150, anchor=tk.CENTER)
     tabla.column("empresa", width=150, anchor=tk.CENTER)
-    tabla.column("precio", width=150, anchor=tk.CENTER)
     tabla.column("cantidad", width=150, anchor=tk.CENTER)
     tabla.column("consumible", width=150, anchor=tk.CENTER)
 
     tabla.heading("id", text="id", anchor=tk.CENTER)
     tabla.heading("nombre", text="nombre", anchor=tk.CENTER)
     tabla.heading("empresa", text="empresa", anchor=tk.CENTER)
-    tabla.heading("precio", text="precio", anchor=tk.CENTER)
     tabla.heading("cantidad", text="cantidad", anchor=tk.CENTER)
     tabla.heading("consumible", text="consumible", anchor=tk.CENTER)
 
@@ -163,7 +171,7 @@ def altaProductos():
 
     i = 0
     for a in cursor:
-        tabla.insert("", i, text="", values=(a[0], a[1], a[2], a[3], a[4], a[5]))
+        tabla.insert("", i, text="", values=(a[0], a[1], a[2], a[3], a[4]))
         i += 1
     tabla.place(x=450, y= 450)
 

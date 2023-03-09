@@ -4,9 +4,6 @@ import sqlite3
 from tkinter.messagebox import *
 from tkinter import Tk, Button
 
-def actualizarFechaExpedicion(event):
-    fechaExpedicion = fechaExp.get()
-
 def actualizarClientes(event):
     cliente = clientes.current()
 
@@ -14,34 +11,48 @@ def actualizarProveedores(event):
     proveedor = proveedores.current()
 
 def actualizarProductos(event):
-    producto = productos.current()
+    producto = Nombreproductos.current()
+
+def actualizarPrecioProductos(event):
+    precioProducto = Precioproductos.current()
 
 def guardar():
     connection = sqlite3.connect('base.db')
     cursor = connection.cursor()
 
     id = codFactura.get()
-    fecha = fechaExp.get()
-    cliente = clientes.current()
-    proveedor = proveedores.current()
-    producto = productos.current()
+    cliente = clientes.get()
+    proveedor = proveedores.get()
+    producto = Nombreproductos.get()
+    precio = Precioproductos.get()
 
     try:
         cursor.execute('''
                        CREATE TABLE IF NOT EXISTS generar_facturas (
                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                       fecha_expedicion VARCHAR(40) NOT NULL, 
                        cliente VARCHAR(60) NOT NULL, 
                        proveedor VARCHAR(60) NOT NULL, 
-                       producto VARCHAR(60) NOT NULL)
+                       nombre_producto VARCHAR(60) NOT NULL,
+                       precio_producto VARCHAR(60) NOT NULL)
                        ''')
         print("Tabla creada correctamente")
     except sqlite3.OperationalError as error:
         print("Error al abrir: ", error)
 
-    registro = "INSERT INTO generar_factura (fechaExp, clientes, proveedores, productos) VALUES(?, ?, ?, ?)"
-    cursor.execute(registro, [fecha, cliente, proveedor, producto])
+    registro = "INSERT INTO generar_facturas (cliente, proveedor, nombre_producto, precio_producto) VALUES(?, ?, ?, ?)"
+    cursor.execute(registro, [cliente, proveedor, producto, precio])
     connection.commit()
+
+    tabla.delete(*tabla.get_children())
+
+    cursor.execute("SELECT * FROM generar_facturas")
+
+    i = 0
+    for a in cursor:
+        tabla.insert("", i, text="", values=(a[0], a[1], a[2], a[3], a[4]))
+        i += 1
+    tabla.place(x=450, y=450)
+
     mostrar()
     continuar()
 
@@ -65,15 +76,18 @@ def continuar():
     if dato == True:
         botonGuardar['state'] = 'normal'
         codFactura.delete(0, 'end')
-        fechaExp.delete(0, 'end')
         clientes.delete(0, 'end')
         proveedores.delete(0, 'end')
-        productos.delete(0, 'end')
+        Nombreproductos.delete(0, 'end')
+        Precioproductos.delete(0, 'end')
     elif dato == False:
         marco.destroy()
 
 
 def creacionFacturas():
+    connection = sqlite3.connect('base.db')
+    cursor = connection.cursor()
+
     global marco
     marco = tk.Tk()
     marco.title("Generar Facturas")
@@ -95,49 +109,51 @@ def creacionFacturas():
     codFactura.grid(row=5, column=1, sticky="w", padx=10, pady=10)
     codFactura['state'] = 'disabled'
 
-    etiqueta2 = tk.Label(marco, text="Fecha expedición", bg="blue", font=("Bahnschrift",12)).grid(row=6, column=0, sticky="w", padx=10, pady=10)
-    global fechaExp
-    fechaExp = tk.Entry(marco, width=100)
-    fechaExp.grid(row=6, column=1, sticky="w", padx=10, pady=10)
-    fechaExp.bind('<Leave>', actualizarFechaExpedicion)
-
     etiqueta3 = tk.Label(marco, text="Clientes", bg="blue", font=("Bahnschrift",12)).grid(row=7, column=0, sticky="w", padx=10, pady=10)
     global clientes
     clientes = ttk.Combobox(marco)
-    clientes['values'] = ("SELECT nombre FROM clientes")
-    clientes.grid(row=10, column=1, sticky="w", padx=10, pady=10)
+
+    clientes['values'] = cursor.execute("SELECT nombre FROM clientes").fetchall()
+    clientes.grid(row=7, column=1, sticky="w", padx=10, pady=10)
     clientes.bind('<<ComboboxSelected>>', actualizarClientes)
 
-    etiqueta4 = tk.Label(marco, text="Proveedores", bg="green", font=("Bahnschrift", 12)).grid(row=8, column=0, sticky="w",padx=10, pady=10)
+    etiqueta4 = tk.Label(marco, text="Proveedores", bg="blue", font=("Bahnschrift", 12)).grid(row=8, column=0, sticky="w",padx=10, pady=10)
     global proveedores
     proveedores = ttk.Combobox(marco)
-    proveedores['values'] = ("SELECT nombre FROM proveedores")
-    proveedores.grid(row=10, column=1, sticky="w", padx=10, pady=10)
+    proveedores['values'] = cursor.execute("SELECT nombre FROM proveedores").fetchall()
+    proveedores.grid(row=8, column=1, sticky="w", padx=10, pady=10)
     proveedores.bind('<<ComboboxSelected>>', actualizarProveedores)
 
-    etiqueta4 = tk.Label(marco, text="Productos", bg="green", font=("Bahnschrift", 12)).grid(row=8, column=0,sticky="w", padx=10,pady=10)
-    global productos
-    productos = ttk.Combobox(marco)
-    productos['values'] = ("SELECT nombre, precio FROM productos")
-    productos.grid(row=10, column=1, sticky="w", padx=10, pady=10)
-    productos.bind('<<ComboboxSelected>>', actualizarProveedores)
+    etiqueta4 = tk.Label(marco, text="Nombre del producto", bg="blue", font=("Bahnschrift", 12)).grid(row=9, column=0,sticky="w", padx=10,pady=10)
+    global Nombreproductos
+    Nombreproductos = ttk.Combobox(marco)
+    Nombreproductos['values'] = cursor.execute("SELECT nombre FROM productos").fetchall()
+    Nombreproductos.grid(row=9, column=1, sticky="w", padx=10, pady=10)
+    Nombreproductos.bind('<<ComboboxSelected>>', actualizarProductos)
+
+    etiqueta5 = tk.Label(marco, text="Precio del producto", bg="blue", font=("Bahnschrift", 12)).grid(row=10, column=0,sticky="w",padx=10, pady=10)
+    global Precioproductos
+    Precioproductos = ttk.Combobox(marco)
+    Precioproductos['values'] = (10,20,30,40,50)
+    Precioproductos.grid(row=10, column=1, sticky="w", padx=10, pady=10)
+    Precioproductos.bind('<<ComboboxSelected>>', actualizarPrecioProductos)
 
     global tabla
     tabla = ttk.Treeview(marco,
-                         columns=("id", "fecha_expedicion", "cliente", "proveedor","producto"))
+                         columns=("id", "cliente", "proveedor","nombre_producto", "precio_producto"))
     tabla["show"] = "headings"
     tabla.column("#0")
     tabla.column("id", width=150, anchor=tk.CENTER)
-    tabla.column("fecha_expedicion", width=150, anchor=tk.CENTER)
     tabla.column("cliente", width=150, anchor=tk.CENTER)
     tabla.column("proveedor", width=150, anchor=tk.CENTER)
-    tabla.column("producto", width=150, anchor=tk.CENTER)
+    tabla.column("nombre_producto", width=150, anchor=tk.CENTER)
+    tabla.column("precio_producto", width=150, anchor=tk.CENTER)
 
     tabla.heading("id", text="id", anchor=tk.CENTER)
-    tabla.heading("fecha_expedicion", text="fecha_expedicion", anchor=tk.CENTER)
     tabla.heading("cliente", text="cliente", anchor=tk.CENTER)
-    tabla.heading("cliente", text="cliente", anchor=tk.CENTER)
-    tabla.heading("producto", text="producto", anchor=tk.CENTER)
+    tabla.heading("proveedor", text="proveedor", anchor=tk.CENTER)
+    tabla.heading("nombre_producto", text="nombre_producto", anchor=tk.CENTER)
+    tabla.heading("precio_producto", text="precio_producto", anchor=tk.CENTER)
 
     conexion = sqlite3.connect('base.db')
     cursor = conexion.cursor()
@@ -145,9 +161,10 @@ def creacionFacturas():
 
     i = 0
     for a in cursor:
-        tabla.insert("", i, text="", values=(a[0], a[1], a[2], a[3]))
+        tabla.insert("", i, text="", values=(a[0], a[1], a[2], a[3], a[4]))
         i += 1
     tabla.place(x=450, y=450)
+
 
     global botonGuardar
     botonGuardar = Button(marco)

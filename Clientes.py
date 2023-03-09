@@ -37,6 +37,17 @@ def guardar():
     registro = "INSERT INTO clientes (nombre, apellido, ciudad) VALUES(?,?,?)"
     cursor.execute(registro, [nombres, lastname, town])
     connection.commit()
+
+    tabla.delete(*tabla.get_children())
+
+    cursor.execute("SELECT * FROM clientes")
+
+    i = 0
+    for a in cursor:
+        tabla.insert("", i, text="", values=(a[0], a[1], a[2], a[3]))
+        i += 1
+    tabla.place(x=450, y=450)
+
     mostrar()
     continuar()
 

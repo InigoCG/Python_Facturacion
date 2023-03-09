@@ -37,6 +37,17 @@ def guardar():
     registro = "INSERT INTO proveedores (nombre, empresa, ciudad) VALUES(?, ?, ?)"
     cursor.execute(registro, [nombres, empresas, ciudades])
     connection.commit()
+
+    tabla.delete(*tabla.get_children())
+
+    cursor.execute("SELECT * FROM proveedores")
+
+    i = 0
+    for a in cursor:
+        tabla.insert("", i, text="", values=(a[0], a[1], a[2], a[3]))
+        i += 1
+    tabla.place(x=450, y=450)
+
     mostrar()
     continuar()
 
@@ -45,7 +56,7 @@ def mostrar():
         botonGuardar['state'] = 'disabled'
         conexion = sqlite3.connect("base.db")
         cursor = conexion.cursor()
-        registro = "SELECT * FROM clientes;"
+        registro = "SELECT * FROM proveedores;"
         cursor.execute(registro)
         cliente = cursor.fetchall()
         print(cliente)
