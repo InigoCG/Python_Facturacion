@@ -3,6 +3,7 @@ from tkinter import ttk
 import sqlite3
 from tkinter.messagebox import *
 from tkinter import Tk, Button
+from Facturas import imprimirFactura
 
 def actualizarClientes(event):
     cliente = clientes.current()
@@ -83,6 +84,30 @@ def continuar():
     elif dato == False:
         marco.destroy()
 
+global codigoSeleccionado
+codigoSeleccionado = None
+global datosFactura
+
+def onSelected(evnt):
+    for a in tabla.selection():
+        item = tabla.item(a)
+        cod, cli, prov, prod, prec = item["values"][0:5]
+        global codigoSeleccionado
+        codigoSeleccionado = cod
+        global datosFactura
+        datosFactura = []
+        datosFactura.append(cli)
+        datosFactura.append(prov)
+        datosFactura.append(prod)
+        datosFactura.append(prec)
+        print(len(datosFactura))
+
+def accionboton():
+    if (codigoSeleccionado == None):
+        tk.messagebox.showerror(message="Debes seleccionar una factura en la tabla", title="Error", parent=marco)
+    else:
+        tk.messagebox.showinfo(message=f'Factura nº{codigoSeleccionado} impresa', title="Info", parent=marco)
+        imprimirFactura(codigoSeleccionado, datosFactura)
 
 def creacionFacturas():
     connection = sqlite3.connect('base.db')
@@ -163,6 +188,7 @@ def creacionFacturas():
     for a in cursor:
         tabla.insert("", i, text="", values=(a[0], a[1], a[2], a[3], a[4]))
         i += 1
+    tabla.bind("<<TreeviewSelect>>", onSelected)
     tabla.place(x=450, y=450)
 
 
@@ -171,3 +197,10 @@ def creacionFacturas():
     botonGuardar.config(text="GUARDAR", width=10, height=2, anchor="center", activebackground="blue", relief="raised",
                         borderwidth=5, font=("Banschrift", 11), command=lambda: guardar())
     botonGuardar.grid(row=13, column=1, sticky="w", padx=100, pady=100)
+
+    global botonImprimir
+    botonImprimir = Button(marco)
+    botonImprimir.config(text="IMPRIMIR FACTURA", width=10, height=2, anchor="center",
+                      activebackground="blue", relief="raised",
+                      borderwidth=5, font=("Bahnschrift", 11), command=lambda: accionboton())
+    botonImprimir.place(x=700, y=680, width=200)
